@@ -27,22 +27,29 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.TextView;
 
-public class NewsListFragment extends Fragment {
+import java.util.List;
 
-	private static final String ARG_POSITION = "position";
+import demo.myapplication.bean.NewsBean;
+import demo.myapplication.news.presenter.NewsPresenter;
+import demo.myapplication.news.presenter.NewsPresenterImpl;
+import demo.myapplication.news.view.NewView;
 
-	private int position;
+public class NewsListFragment extends Fragment implements NewView{
 
+	private static final String FRAGMENT_TYPE = "type";
 	public static final int NEWS_TYPE_TOP = 0;
 	public static final int NEWS_TYPE_NBA = 1;
 	public static final int NEWS_TYPE_CARS = 2;
 	public static final int NEWS_TYPE_JOKES = 3;
 
+	private NewsPresenter mNewsPresenter;
+	private int mType;
+	private int mPageIndex= 0;
 
-	public static NewsListFragment newInstance(int position) {
+	public static NewsListFragment newInstance(int type) {
 		NewsListFragment f = new NewsListFragment();
 		Bundle b = new Bundle();
-		b.putInt(ARG_POSITION, position);
+		b.putInt(FRAGMENT_TYPE, type);
 		f.setArguments(b);
 		return f;
 	}
@@ -51,7 +58,8 @@ public class NewsListFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		position = getArguments().getInt(ARG_POSITION);
+		mNewsPresenter = new NewsPresenterImpl(this);
+		mType = getArguments().getInt(FRAGMENT_TYPE);
 	}
 
 	@Override
@@ -71,10 +79,37 @@ public class NewsListFragment extends Fragment {
 		v.setLayoutParams(params);
 		v.setGravity(Gravity.CENTER);
 		v.setBackgroundResource(R.drawable.background_card);
-		v.setText("CARD " + (position + 1));
-
+		v.setText("CARD " + (mType + 1));
 		fl.addView(v);
+
+		onRefresh();
+
 		return fl;
 	}
 
+
+	private void onRefresh(){
+
+		mNewsPresenter.loadNews(mType,mPageIndex);
+	}
+
+	@Override
+	public void showProgress() {
+
+	}
+
+	@Override
+	public void addNews(List<NewsBean> list) {
+
+	}
+
+	@Override
+	public void hideProgress() {
+
+	}
+
+	@Override
+	public void showLoadFailMsg() {
+
+	}
 }
