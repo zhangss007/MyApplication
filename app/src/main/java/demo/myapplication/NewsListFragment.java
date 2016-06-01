@@ -18,6 +18,10 @@ package demo.myapplication;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,20 +31,30 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import demo.myapplication.adapter.NewsAdapter;
 import demo.myapplication.bean.NewsBean;
+import demo.myapplication.commoms.Urls;
 import demo.myapplication.news.presenter.NewsPresenter;
 import demo.myapplication.news.presenter.NewsPresenterImpl;
 import demo.myapplication.news.view.NewView;
 
-public class NewsListFragment extends Fragment implements NewView{
+public class NewsListFragment extends Fragment implements NewView, SwipeRefreshLayout.OnRefreshListener{
 
+	private  static final String TAG = "NewsListFragment";
 	private static final String FRAGMENT_TYPE = "type";
 	public static final int NEWS_TYPE_TOP = 0;
 	public static final int NEWS_TYPE_NBA = 1;
 	public static final int NEWS_TYPE_CARS = 2;
 	public static final int NEWS_TYPE_JOKES = 3;
+
+	private SwipeRefreshLayout mSwipeRefreshWidget;
+	private RecyclerView mRecyclerView;
+	private LinearLayoutManager mLayoutManager;
+	private NewsAdapter mAdapter;
+	private List<NewsBean> mData;
 
 	private NewsPresenter mNewsPresenter;
 	private int mType;
@@ -65,47 +79,89 @@ public class NewsListFragment extends Fragment implements NewView{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		View view = inflater.inflate(R.layout.fragment_newslist,null);
+		mSwipeRefreshWidget = (SwipeRefreshLayout)view.findViewById(R.id.swipe_refresh_widget);
+		mSwipeRefreshWidget.setColorSchemeResources(R.color.primary,
+				R.color.primary_dark, R.color.primary_light,
+				R.color.accent);
+		mSwipeRefreshWidget.setOnRefreshListener(this);
 
-		FrameLayout fl = new FrameLayout(getActivity());
-		fl.setLayoutParams(params);
+		mRecyclerView = (RecyclerView)view.findViewById(R.id.recycle_view);
+		mRecyclerView.setHasFixedSize(true);
 
-		final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources()
-				.getDisplayMetrics());
+		mLayoutManager = new LinearLayoutManager(getActivity());
+		mRecyclerView.setLayoutManager(mLayoutManager);
 
-		TextView v = new TextView(getActivity());
-		params.setMargins(margin, margin, margin, margin);
-		v.setLayoutParams(params);
-		v.setLayoutParams(params);
-		v.setGravity(Gravity.CENTER);
-		v.setBackgroundResource(R.drawable.background_card);
-		v.setText("CARD " + (mType + 1));
-		fl.addView(v);
+		mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+		mAdapter = new NewsAdapter(getActivity().getApplicationContext());
+		mAdapter.setOnItemClickListener(mOnItemClickListener);
+		mRecyclerView.setAdapter(mAdapter);
+		mRecyclerView.addOnScrollListener(mOnScrollListener);;
 
 		onRefresh();
-
-		return fl;
+		return view;
 	}
 
 
-	private void onRefresh(){
+	private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener(){
+		@Override
+		public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+			super.onScrollStateChanged(recyclerView, newState);
+		}
 
+		@Override
+		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			super.onScrolled(recyclerView, dx, dy);
+		}
+	};
+
+
+	private NewsAdapter.OnItemClickListener mOnItemClickListener = new NewsAdapter.OnItemClickListener() {
+		@Override
+		public void onItemClick(View view, int position) {
+
+		}
+	};
+
+
+	@Override
+	public void onRefresh() {
+		if (mData != null){
+
+			mData.clear();
+		}
 		mNewsPresenter.loadNews(mType,mPageIndex);
 	}
 
 	@Override
 	public void showProgress() {
-
+		mSwipeRefreshWidget.setRefreshing(true);
 	}
 
 	@Override
 	public void addNews(List<NewsBean> list) {
 
+		mAdapter.isShowFooter(true);
+		if(mData == null) {
+			mData = new ArrayList<NewsBean>();
+		}
+		mData.addAll(list);
+		if(mPageIndex == 0) {
+			mAdapter.setmDate(mData);
+		} else {
+			//如果没有更多数据了,则隐藏footer布局
+			if(list == null || list.size() == 0) {
+				mAdapter.isShowFooter(false);
+			}
+			mAdapter.notifyDataSetChanged();
+		}
+		mPageIndex += Urls.PAZE_SIZE;
 	}
 
 	@Override
 	public void hideProgress() {
 
+		mSwipeRefreshWidget.setRefreshing(false);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.List;
 
 import demo.myapplication.NewsListFragment;
 import demo.myapplication.bean.NewsBean;
+import demo.myapplication.commoms.Urls;
 import demo.myapplication.news.model.NewModel;
 import demo.myapplication.news.model.NewModelImpl;
 import demo.myapplication.news.view.NewView;
@@ -35,14 +36,19 @@ public class NewsPresenterImpl implements NewsPresenter,NewModelImpl.OnLoadNewsL
         StringBuffer sb = new StringBuffer();
         switch (type){
             case NewsListFragment.NEWS_TYPE_TOP:
+                sb.append(Urls.TOP_URL).append(Urls.TOP_ID);
                 break;
             case NewsListFragment.NEWS_TYPE_NBA:
+                sb.append(Urls.COMMON_URL).append(Urls.NBA_ID);
                 break;
             case NewsListFragment.NEWS_TYPE_CARS:
+                sb.append(Urls.COMMON_URL).append(Urls.CAR_ID);
                 break;
             case NewsListFragment.NEWS_TYPE_JOKES:
+                sb.append(Urls.COMMON_URL).append(Urls.JOKE_ID);
                 break;
             default:
+                sb.append(Urls.TOP_URL).append(Urls.TOP_ID);
                 break;
         }
 
@@ -52,10 +58,14 @@ public class NewsPresenterImpl implements NewsPresenter,NewModelImpl.OnLoadNewsL
     @Override
     public void onSuccess(List<NewsBean> list) {
 
+        mNewView.hideProgress();
+        mNewView.addNews(list);
     }
 
     @Override
     public void onFailure(String msg, Exception e) {
 
+        mNewView.hideProgress();
+        mNewView.showLoadFailMsg();
     }
 }
