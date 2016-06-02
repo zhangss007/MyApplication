@@ -83,7 +83,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((ItemViewHolder) holder).mDesc.setText(news.getDigest());
 //            Uri uri = Uri.parse(news.getImgsrc());
 //            ((ItemViewHolder) holder).mNewsImg.setImageURI(uri);
-            ImageLoaderUtils.display(mContext, ((ItemViewHolder) holder).mNewsImg, news.getImagesrc());
+            ImageLoaderUtils.display(mContext, ((ItemViewHolder) holder).mNewsImg, news.getImgsrc());
         }
     }
 

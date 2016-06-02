@@ -51,7 +51,7 @@ public class NewsPresenterImpl implements NewsPresenter,NewModelImpl.OnLoadNewsL
                 sb.append(Urls.TOP_URL).append(Urls.TOP_ID);
                 break;
         }
-
+        sb.append("/").append(pageIndex).append(Urls.END_URL);
         return sb.toString();
     }
 

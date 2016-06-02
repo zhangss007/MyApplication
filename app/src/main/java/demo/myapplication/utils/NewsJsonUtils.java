@@ -1,5 +1,7 @@
 package demo.myapplication.utils;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,6 +26,7 @@ public class NewsJsonUtils {
      * @param value
      * @return
      */
+    @Nullable
     public static List<NewsBean> readJsonNewsBeans(String res, String value) {
         List<NewsBean> beans = new ArrayList<NewsBean>();
         try {

@@ -29,11 +29,27 @@ public class NewModelImpl implements NewModel {
                 listener.onFailure("load news list failure.", e);
             }
         };
+        OkHttpUtils.get(url,resultCallback);
     }
 
-    @Override
-    public void loadNewsDetail(String docId,OnLoadNewsDetailListener listener) {
 
+    @Override
+    public void loadNewsDetail(final String docId, final OnLoadNewsDetailListener listener) {
+
+        String url = getDetailUrl(docId);
+        OkHttpUtils.ResultCallback<String> resultCallback = new OkHttpUtils.ResultCallback<String>() {
+            @Override
+            public void onSuccess(String response) {
+                NewsDetailBean newsDetailBean = NewsJsonUtils.readJsonNewsDetailBeans(response,docId);
+                listener.onSuccess(newsDetailBean);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                listener.onFailure("load news detail info failure.",e);
+            }
+        };
+        OkHttpUtils.get(url,resultCallback);
     }
 
     /**
@@ -62,7 +78,11 @@ public class NewModelImpl implements NewModel {
         }
         return id;
     }
-
+    private String getDetailUrl(String docId) {
+        StringBuffer sb = new StringBuffer(Urls.NEW_DETAIL);
+        sb.append(docId).append(Urls.END_DETAIL_URL);
+        return sb.toString();
+    }
     public interface OnLoadNewsListListener{
 
         void onSuccess(List<NewsBean> list);

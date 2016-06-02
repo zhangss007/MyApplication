@@ -15,21 +15,18 @@
  */
 
 package demo.myapplication;
-
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +37,8 @@ import demo.myapplication.commoms.Urls;
 import demo.myapplication.news.presenter.NewsPresenter;
 import demo.myapplication.news.presenter.NewsPresenterImpl;
 import demo.myapplication.news.view.NewView;
+import demo.myapplication.news.widget.NewsDetailActivity;
+import demo.myapplication.utils.LogUtils;
 
 public class NewsListFragment extends Fragment implements NewView, SwipeRefreshLayout.OnRefreshListener{
 
@@ -104,14 +103,23 @@ public class NewsListFragment extends Fragment implements NewView, SwipeRefreshL
 
 
 	private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener(){
+		private int lastVisibleItem;
 		@Override
 		public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 			super.onScrollStateChanged(recyclerView, newState);
+			if (newState == RecyclerView.SCROLL_STATE_IDLE
+					&& lastVisibleItem + 1 == mAdapter.getItemCount()
+					&& mAdapter.isShowFooter()) {
+				//加载更多
+				LogUtils.d(TAG, "loading more data");
+				mNewsPresenter.loadNews(mType, mPageIndex + Urls.PAZE_SIZE);
+			}
 		}
 
 		@Override
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			super.onScrolled(recyclerView, dx, dy);
+			lastVisibleItem = mLayoutManager.findLastVisibleItemPosition();
 		}
 	};
 
@@ -119,13 +127,22 @@ public class NewsListFragment extends Fragment implements NewView, SwipeRefreshL
 	private NewsAdapter.OnItemClickListener mOnItemClickListener = new NewsAdapter.OnItemClickListener() {
 		@Override
 		public void onItemClick(View view, int position) {
+			NewsBean news = mAdapter.getItem(position);
+			Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
+			intent.putExtra("news", news);
+			View transitionView = view.findViewById(R.id.ivNews);
+			ActivityOptionsCompat options =
+					ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+							transitionView, getString(R.string.transition_news_img));
 
+			ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
 		}
 	};
 
 
 	@Override
 	public void onRefresh() {
+		mPageIndex = 0 ;
 		if (mData != null){
 
 			mData.clear();

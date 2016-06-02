@@ -1,9 +1,11 @@
 package demo.myapplication.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by FT_ZSS on 2016/5/27.
  */
-public class NewsBean {
+public class NewsBean implements Serializable {
 
     private String docid;
     /**
@@ -17,7 +19,7 @@ public class NewsBean {
     /**
      * 图片地址
      */
-    private String imagesrc;
+    private String imgsrc;
     /**
      * 来源
      */
@@ -55,12 +57,12 @@ public class NewsBean {
         this.tag = tag;
     }
 
-    public String getImagesrc() {
-        return imagesrc;
+    public String getImgsrc() {
+        return imgsrc;
     }
 
-    public void setImagesrc(String imagesrc) {
-        this.imagesrc = imagesrc;
+    public void setImgsrc(String imagesrc) {
+        this.imgsrc = imagesrc;
     }
 
     public String getDigest() {
