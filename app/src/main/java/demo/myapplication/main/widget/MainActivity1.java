@@ -15,6 +15,7 @@ import demo.myapplication.main.presenter.MainPresenter;
 import demo.myapplication.main.presenter.MainPresenterImpl;
 import demo.myapplication.main.view.MainView;
 import demo.myapplication.news.widget.NewsFragment;
+import demo.myapplication.weather.widget.WeatherFragment;
 
 /**
  * Created by FT_ZSS on 2016/6/3.
@@ -75,6 +76,7 @@ public class MainActivity1 extends AppCompatActivity implements MainView{
     @Override
     public void switch2Weather() {
 
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame_content,new WeatherFragment()).commit();
         mToolBar.setTitle("天气");
     }
 
