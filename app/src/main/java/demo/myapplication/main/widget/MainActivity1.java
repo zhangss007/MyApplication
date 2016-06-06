@@ -43,7 +43,7 @@ public class MainActivity1 extends AppCompatActivity implements MainView{
         setupDrawerContent(mNavigationView);
 
         mMainPresenter = new MainPresenterImpl(this);
-        switch2Images();
+        switch2News();
     }
 
 
